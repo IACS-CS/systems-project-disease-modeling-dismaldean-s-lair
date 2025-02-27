@@ -20,19 +20,19 @@ and not interacting with others in each round.
 
 /**
  * Authors: 
- * 
+ * Teddy D. and Owen
  * What we are simulating:
- * 
+ * We are simulating death in an infected population. We will have similar logic to the handshake model, just edit each infected person to have a chance for them to die each round.
  * What elements we have to add:
- * 
+ * A slider for the user to configure to change the death rate of infected persons.
  * In plain language, what our model does:
- * 
+ * Our model will add the factor of death rate being modelled. After being infected they have a chance to die each round infected.
  */
 
 
 
 export const defaultSimulationParameters = {
-  infectionChance: 50,
+  infectionChance: 50,  deathRate: 2,
   // Add any new parameters you want here with their initial values
   //  -- you will also have to add inputs into your jsx file if you want
   // your user to be able to change these parameters.
@@ -84,42 +84,88 @@ const updateIndividual = (person, contact, params) => {
   }
 };
 
-// Example: Update population (students decide what happens each turn)
-export const updatePopulation = (population, params) => {
-  // Include "shufflePopulation if you want to shuffle...
-  // population = shufflePopulation(population);
-  // Example logic... each person is in contact with the person next to them...
-  for (let i = 0; i < population.length; i++) {
-    let p = population[i];
-    // This logic just grabs the next person in line -- you will want to 
-    // change this to fit your model! 
-    let contact = population[(i + 1) % population.length];
-    // Update the individual based on the contact...
-    updateIndividual(p, contact, params);
+//Generated with AI
+const maybeKillPerson = (person, params) => {
+  if (person.infected && !person.dead) { // Only check for infected, living people
+    if (Math.random() * 100 < params.deathRate) {
+      person.dead = true; // Mark person as dead
+    }
   }
-  return population;
 };
 
+// Example: Update population, copied over from the handshake game and edited with help from AI.
+
+export const updatePopulation = (
+  population,
+  params
+) => {
+  // First, no one is newly infected any more...
+  for (let p of population) {
+    p.newlyInfected = false;
+    maybeKillPerson(p, params);
+  }
+  const shuffledPopulation = shufflePopulation(population);
+  // Now that we've shuffled, let's move through the population by two's
+  for (let i = 0; i < shuffledPopulation.length - 1; i += 2) {
+    let personA = shuffledPopulation[i];
+    let personB = shuffledPopulation[i + 1];
+
+    // let's have them meet at person A's spot...        
+    // Check if we're at the edge...
+    if (personA.x < 1) {
+      personA.x += Math.ceil(Math.random() * 5)
+    }
+    if (personA.x > 99) {
+      personA.x -= Math.ceil(Math.random() * 5)
+    }
+    // Now move personA over slightly to make room
+    personA.x -= 1; // person A moves over...
+    // personB stands next to them :-)
+    personB.x = personA.x + 2; // person B moves over...
+    personB.y = personA.y;
+    // Keep track of partners for nudging...
+    personA.partner = personB;
+    personB.partner = personA;
+
+    // Now let's see if they infect each other
+    if (personA.infected && !personB.infected) {
+      maybeInfectPerson(personB, params);
+    }
+    if (personB.infected && !personA.infected) {
+      maybeInfectPerson(personA, params);
+    }
+  }
+
+  // We return the original population (order unchanged)
+  return population;
+};
 
 // Stats to track (students can add more)
 // Any stats you add here should be computed
 // by Compute Stats below
 export const trackedStats = [
   { label: "Total Infected", value: "infected" },
+  { label: "Total Deaths", value: "deaths" },
 ];
 
 // Example: Compute stats (students customize)
 export const computeStatistics = (population, round) => {
   let infected = 0;
   let newlyInfected = 0;
+  let deaths = 0;
+
   for (let p of population) {
     if (p.infected) {
-      infected += 1; // Count the infected
+      infected += 1;
     }
     if (p.newlyInfected) {
-      newlyInfected += 1; // Count the newly infected
+      newlyInfected += 1;
+    }
+    if (p.dead) {
+      deaths += 1; // Count the dead
     }
   }
-  return { round, infected, newlyInfected };
+
+  return { round, infected, newlyInfected, deaths };
 };
 
