@@ -26,7 +26,9 @@ const renderPatients = (population) => {
   }
 
   function renderEmoji(p) {
-    if (p.newlyInfected) {
+    if (p.dead) {
+      return "💀"; // Skull emoji for dead people
+    } else if (p.newlyInfected) {
       return "🤧"; // Sneezing Face for new cases
     } else if (p.infected) {
       return "🤢"; // Vomiting Face for already sick
@@ -140,6 +142,23 @@ const Simulation = () => {
             />
             {simulationParameters.infectionChance}%
           </label>
+          <label>
+            Death Rate:
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value={simulationParameters.deathRate}
+              onChange={(e) =>
+                setSimulationParameters({
+                ...simulationParameters,
+                deathRate: parseFloat(e.target.value),
+              })
+            }
+          />
+          {simulationParameters.deathRate}%
+          </label>            
           <label>
             Population:
             <div className="vertical-stack">
