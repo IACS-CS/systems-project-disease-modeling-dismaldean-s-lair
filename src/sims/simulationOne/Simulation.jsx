@@ -109,9 +109,7 @@ const Simulation = () => {
       <section className="top">
         <h1>My Custom Simulation</h1>
         <p>
-          Edit <code>simulationOne/diseaseModel.js</code> to define how your
-          simulation works. This one should try to introduce *one* complicating
-          feature to the basic model.
+          First simulation including a factor of simulating deaths from a disease with an adjustable death rate slider.
         </p>
 
         <p>

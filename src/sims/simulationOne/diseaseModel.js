@@ -88,7 +88,7 @@ const updateIndividual = (person, contact, params) => {
 // Example: Update population (students decide what happens each turn)
 export const updatePopulation = (population, params) => {
   // Include "shufflePopulation if you want to shuffle...
-  // population = shufflePopulation(population);
+  population = shufflePopulation(population);
   // Example logic... each person is in contact with the person next to them...
   for (let i = 0; i < population.length; i++) {
     let p = population[i];

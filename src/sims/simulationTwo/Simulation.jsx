@@ -9,6 +9,9 @@ import {
 import { renderChart } from "../../lib/renderChart";
 import { renderTable } from "../../lib/renderTable";
 
+// Default parameters -- any properties you add here
+// will be passed to your disease model when it runs.
+
 let boxSize = 500; // World box size in pixels
 let maxSize = 1000; // Max number of icons we render (we can simulate big populations, but don't render them all...)
 
@@ -23,7 +26,11 @@ const renderPatients = (population) => {
   }
 
   function renderEmoji(p) {
-    if (p.newlyInfected) {
+    if (p.dead) {
+      return "💀"; // Skull emoji for dead people
+    } else if (p.type === "animal") {
+      return "🐕"; // Dog emoji for animals
+    } else if (p.newlyInfected) {
       return "🤧"; // Sneezing Face for new cases
     } else if (p.infected) {
       return "🤢"; // Vomiting Face for already sick
@@ -102,12 +109,8 @@ const Simulation = () => {
   return (
     <div>
       <section className="top">
-        <h1>My Second Custom Simulation</h1>
-        <p>
-          Edit <code>simulationTwo/diseaseModel.js</code> to define how your
-          simulation works. This one should try to replicate features of a real
-          world illness and/or intervention.
-        </p>
+        <h1>Rabies Simulation</h1>
+        <p>Second Simulation modeling Rabies.</p>
 
         <p>
           Population: {population.length}. Infected:{" "}
@@ -120,7 +123,57 @@ const Simulation = () => {
         <button onClick={resetSimulation}>Reset Simulation</button>
 
         <div>
-          {/* Add custom parameters here... */}
+          <label>
+            Infection Chance:
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={simulationParameters.infectionChance}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  infectionChance: parseFloat(e.target.value),
+                })
+              }
+            />
+            {simulationParameters.infectionChance}%
+          </label>
+          <label>
+            Death Rate:
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value={simulationParameters.deathRate}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  deathRate: parseFloat(e.target.value),
+                })
+              }
+            />
+            {simulationParameters.deathRate}%
+          </label>
+          <label>
+            Bite Chance:
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={simulationParameters.biteChance}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  biteChance: parseFloat(e.target.value),
+                })
+              }
+            />
+            {simulationParameters.biteChance}%
+          </label>
           <label>
             Population:
             <div className="vertical-stack">
