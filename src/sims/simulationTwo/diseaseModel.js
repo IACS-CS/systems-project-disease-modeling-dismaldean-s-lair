@@ -45,9 +45,10 @@ import { shufflePopulation } from "../../lib/shufflePopulation";
 // will be passed to your disease model when it runs.
 
 export const defaultSimulationParameters = {
-  infectionChance: 50,
-  deathRate: 2,
+  infectionChance: 100,
+  deathRate: 16,
   biteChance: 5, // New parameter for bite chance
+  incubationPeriod: 60, // New parameter for incubation period
   // Add any new parameters you want here with their initial values
   //  -- you will also have to add inputs into your jsx file if you want
   // your user to be able to change these parameters.
@@ -72,6 +73,7 @@ export const createPopulation = (size = 1600, animalCount = 100) => {
       x: (100 * (i % sideSize)) / sideSize, // X-coordinate within 100 units
       y: (100 * Math.floor(i / sideSize)) / sideSize, // Y-coordinate scaled similarly
       infected: false,
+      incubationDays: 0, // Initialize incubation days
       type: "human",
     });
   }
@@ -85,27 +87,26 @@ export const createPopulation = (size = 1600, animalCount = 100) => {
       type: "animal",
     });
   }
-  // Infect patient zero...
-  let patientZero = population[Math.floor(Math.random() * size)];
-  patientZero.infected = true;
   return population;
 };
 
 // Example: Maybe infect a person or an animal (students should customize this)
 const updateIndividual = (person, contact, params) => {
-  // Add some logic to update the individual!
-  // For example...
-  if (person.infected) {
-    // If they were already infected, they are no longer
-    // newly infected :)
+  if (person.infected && person.incubationDays > 0) {
+    person.incubationDays -= 1;
+    if (person.incubationDays === 0) {
+      person.newlyInfected = true;
+    }
+  } else if (person.infected) {
     person.newlyInfected = false;
   }
-  if (contact.infected) {
+
+  if (contact.infected && contact.incubationDays === 0) {
     if (Math.random() * 100 < params.infectionChance) {
       if (!person.infected) {
-        person.newlyInfected = true;
+        person.infected = true;
+        person.incubationDays = params.incubationPeriod;
       }
-      person.infected = true;
     }
   }
 };
@@ -129,9 +130,9 @@ export const updatePopulation = (population, params) => {
     const randomHuman = humans[randomIndex];
     if (Math.random() * 100 < params.biteChance) {
       if (!randomHuman.infected) {
-        randomHuman.newlyInfected = true;
+        randomHuman.infected = true;
+        randomHuman.incubationDays = params.incubationPeriod;
       }
-      randomHuman.infected = true;
     }
 
     // Visually pair the animal and the human
@@ -151,7 +152,8 @@ export const updatePopulation = (population, params) => {
   // Update the rest of the population
   for (let i = 0; i < population.length; i++) {
     let p = population[i];
-    if (p.infected && !p.dead) {
+    updateIndividual(p, population[(i + 1) % population.length], params);
+    if (p.infected && !p.dead && p.incubationDays === 0) {
       // Check if the person dies this round
       if (Math.random() * 100 < params.deathRate) {
         p.dead = true;
@@ -168,7 +170,7 @@ export const updatePopulation = (population, params) => {
 export const trackedStats = [
   { label: "Total Infected", value: "infected" },
   { label: "Total Dead", value: "dead" },
-  { label: "Total Infected Animals", value: "infectedAnimals" },
+  { label: "Total Incubating", value: "incubating" }, // Updated stat
 ];
 
 // Example: Compute stats (students customize)
@@ -176,7 +178,7 @@ export const computeStatistics = (population, round) => {
   let infected = 0;
   let newlyInfected = 0;
   let dead = 0;
-  let infectedAnimals = 0;
+  let incubating = 0;
   for (let p of population) {
     if (p.dead) {
       dead += 1;
@@ -185,14 +187,16 @@ export const computeStatistics = (population, round) => {
   for (let p of population) {
     if (p.infected) {
       if (p.type === "human") {
-        infected += 1; // Count the infected humans
-      } else if (p.type === "animal") {
-        infectedAnimals += 1; // Count the infected animals
+        if (p.incubationDays > 0) {
+          incubating += 1; // Count the people with the virus incubated in them
+        } else {
+          infected += 1; // Count the infected humans
+        }
       }
     }
     if (p.newlyInfected) {
       newlyInfected += 1; // Count the newly infected
     }
   }
-  return { round, infected, newlyInfected, dead, infectedAnimals };
+  return { round, infected, newlyInfected, dead, incubating };
 };

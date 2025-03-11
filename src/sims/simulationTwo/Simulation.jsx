@@ -30,6 +30,8 @@ const renderPatients = (population) => {
       return "💀"; // Skull emoji for dead people
     } else if (p.type === "animal") {
       return "🐕"; // Dog emoji for animals
+    } else if (p.incubationDays > 0) {
+      return "😷"; // Face with Medical Mask for incubation period
     } else if (p.newlyInfected) {
       return "🤧"; // Sneezing Face for new cases
     } else if (p.infected) {
@@ -124,24 +126,7 @@ const Simulation = () => {
 
         <div>
           <label>
-            Infection Chance:
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value={simulationParameters.infectionChance}
-              onChange={(e) =>
-                setSimulationParameters({
-                  ...simulationParameters,
-                  infectionChance: parseFloat(e.target.value),
-                })
-              }
-            />
-            {simulationParameters.infectionChance}%
-          </label>
-          <label>
-            Death Rate:
+            Death Rate (16% daily is typical for rabies, this equates to an over 99% chance in 4 weeks):
             <input
               type="range"
               min="0"
@@ -175,26 +160,21 @@ const Simulation = () => {
             {simulationParameters.biteChance}%
           </label>
           <label>
-            Population:
-            <div className="vertical-stack">
-              {/* Population uses a "square" size to allow a UI that makes it easy to slide
-          from a small population to a large one. */}
-              <input
-                type="range"
-                min="3"
-                max="1000"
-                value={popSize}
-                onChange={(e) => setPopSize(parseInt(e.target.value))}
-              />
-              <input
-                type="number"
-                value={Math.round(popSize * popSize)}
-                step="10"
-                onChange={(e) =>
-                  setPopSize(Math.sqrt(parseInt(e.target.value)))
-                }
-              />
-            </div>
+            Incubation Period:
+            <input
+              type="range"
+              min="30"
+              max="100"
+              step="1"
+              value={simulationParameters.incubationPeriod}
+              onChange={(e) =>
+                setSimulationParameters({
+                  ...simulationParameters,
+                  incubationPeriod: parseFloat(e.target.value),
+                })
+              }
+            />
+            {simulationParameters.incubationPeriod} days
           </label>
         </div>
       </section>
