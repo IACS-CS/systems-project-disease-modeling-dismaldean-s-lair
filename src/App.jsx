@@ -14,7 +14,7 @@ export const App = () => {
       component: Simulation,
     },
     {
-      name: "My Rabies Simulation ",
+      name: "My Rabies Simulation",
       component: Simulation2,
     },
   ];
@@ -31,6 +31,7 @@ export const App = () => {
           </li>
         ))}
       </ul>
+      <Footer />
     </div>
   );
 
@@ -39,15 +40,21 @@ export const App = () => {
       <button className="back-button" onClick={() => setActiveSim(undefined)}>
         Back
       </button>
-      <activeSim.component />;
+      <activeSim.component />
     </div>
   );
 
-  if (activeSim) {
-    return renderSim();
-  } else {
-    return renderChooser();
-  }
+  return (
+    <div className="app-container">
+      {activeSim ? renderSim() : renderChooser()}
+    </div>
+  );
 };
+
+const Footer = () => (
+  <footer className="footer">
+    <p>Created with the help of ChatGPT and Google.</p>
+  </footer>
+);
 
 export default App;
