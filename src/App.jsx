@@ -24,6 +24,7 @@ export const App = () => {
   const renderChooser = () => (
     <div className="simulation-chooser">
       <h1>Simulation Playground</h1>
+      <CreatedBy />
       <ul>
         {sims.map((sim) => (
           <li key={sim.name}>
@@ -51,6 +52,14 @@ export const App = () => {
   );
 };
 
+// Noticeable "Created by" section near the top
+const CreatedBy = () => (
+  <div className="created-by">
+    <h2>Created by: Name One and Name Two</h2>
+  </div>
+);
+
+// Subtle acknowledgment at the bottom
 const Footer = () => (
   <footer className="footer">
     <p>Created with the help of ChatGPT and Google.</p>
