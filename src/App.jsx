@@ -55,7 +55,7 @@ export const App = () => {
 // Noticeable "Created by" section near the top
 const CreatedBy = () => (
   <div className="created-by">
-    <h2>Created by: Name One and Name Two</h2>
+    <h2>Created by: Owen Butters and Teddy Darlington</h2>
   </div>
 );
 
